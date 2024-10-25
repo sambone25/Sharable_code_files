@@ -1,0 +1,42 @@
+import requests
+
+baseurl = 'https://swapi.dev/api/'
+endpoint = 'starships'
+
+def find_max_atmosphering_speed(baseurl, endpoint, max_pages=36):
+    max_speed = 0
+    max_speed_starship = None
+
+    for page in range(1, max_pages + 1):
+        url = f"{baseurl}{endpoint}/?page={page}"
+        response = requests.get(url)
+        data = response.json()
+
+        for starship in data['results']:
+            speed = starship.get('max_atmosphering_speed')
+            
+            # Check if speed is valid 
+            if speed and speed.isdigit():
+                speed = int(speed)
+                
+                # Update max speed
+                if speed > max_speed:
+                    max_speed = speed
+                    max_speed_starship = starship
+
+        # Stop if there are no more pages
+        if not data.get('next'):
+            break
+
+    return max_speed, max_speed_starship
+
+# Call the function
+max_speed, max_speed_starship = find_max_atmosphering_speed(baseurl, endpoint)
+
+if max_speed_starship:
+    print("Starship with the highest atmosphering speed:")
+    print("Name:", max_speed_starship['name'])
+    print("Max Atmosphering Speed:", max_speed)
+else:
+    print("No starship found.")
+
